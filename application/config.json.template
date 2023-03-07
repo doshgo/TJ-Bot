@@ -95,4 +95,9 @@
         "rateLimitWindowSeconds": 10,
         "rateLimitRequestsInWindow": 3
     }
+    "oofsAndLmaos": {
+        "oofEmojiName": ":oof:"
+        "lmaoEmojiName": ":lmao"
+        "starboardChannelId": <put_channel_id_here>
+    }
 }

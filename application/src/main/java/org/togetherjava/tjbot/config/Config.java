@@ -39,6 +39,7 @@ public final class Config {
     private final String openaiApiKey;
     private final String sourceCodeBaseUrl;
     private final JShellConfig jshell;
+    private final OofsAndLmaosConfig oofsAndLmaos;
 
     @SuppressWarnings("ConstructorWithTooManyParameters")
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
@@ -76,7 +77,8 @@ public final class Config {
                     required = true) String logErrorChannelWebhook,
             @JsonProperty(value = "openaiApiKey", required = true) String openaiApiKey,
             @JsonProperty(value = "sourceCodeBaseUrl", required = true) String sourceCodeBaseUrl,
-            @JsonProperty(value = "jshell", required = true) JShellConfig jshell) {
+            @JsonProperty(value = "jshell", required = true) JShellConfig jshell, 
+            @JsonProperty(value = "oofsAndLmaos", required = true) OofsAndLmaosConfig oofsAndLmaos) {
         this.token = Objects.requireNonNull(token);
         this.gistApiKey = Objects.requireNonNull(gistApiKey);
         this.databasePath = Objects.requireNonNull(databasePath);
@@ -102,6 +104,7 @@ public final class Config {
         this.openaiApiKey = Objects.requireNonNull(openaiApiKey);
         this.sourceCodeBaseUrl = Objects.requireNonNull(sourceCodeBaseUrl);
         this.jshell = Objects.requireNonNull(jshell);
+        this.oofsAndLmaos = Objects.requireNonNull(oofsAndLmaos);
     }
 
     /**
@@ -341,5 +344,8 @@ public final class Config {
      */
     public JShellConfig getJshell() {
         return jshell;
+	}
+    public OofsAndLmaosConfig getOofsAndLmaos() {
+        return oofsAndLmaos;
     }
 }
