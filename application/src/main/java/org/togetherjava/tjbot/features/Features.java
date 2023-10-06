@@ -3,10 +3,13 @@ package org.togetherjava.tjbot.features;
 import net.dv8tion.jda.api.JDA;
 
 import org.togetherjava.tjbot.config.Config;
+import org.togetherjava.tjbot.config.FeatureBlacklist;
+import org.togetherjava.tjbot.config.FeatureBlacklistConfig;
 import org.togetherjava.tjbot.db.Database;
 import org.togetherjava.tjbot.features.basic.PingCommand;
 import org.togetherjava.tjbot.features.basic.RoleSelectCommand;
 import org.togetherjava.tjbot.features.basic.SlashCommandEducator;
+import org.togetherjava.tjbot.features.basic.Starboard;
 import org.togetherjava.tjbot.features.basic.SuggestionsUpDownVoter;
 import org.togetherjava.tjbot.features.bookmarks.BookmarksCommand;
 import org.togetherjava.tjbot.features.bookmarks.BookmarksSystem;
@@ -18,32 +21,13 @@ import org.togetherjava.tjbot.features.code.CodeMessageAutoDetection;
 import org.togetherjava.tjbot.features.code.CodeMessageHandler;
 import org.togetherjava.tjbot.features.code.CodeMessageManualDetection;
 import org.togetherjava.tjbot.features.filesharing.FileSharingMessageListener;
-import org.togetherjava.tjbot.features.help.AutoPruneHelperRoutine;
-import org.togetherjava.tjbot.features.help.GuildLeaveCloseThreadListener;
-import org.togetherjava.tjbot.features.help.HelpSystemHelper;
-import org.togetherjava.tjbot.features.help.HelpThreadActivityUpdater;
-import org.togetherjava.tjbot.features.help.HelpThreadAutoArchiver;
-import org.togetherjava.tjbot.features.help.HelpThreadCommand;
-import org.togetherjava.tjbot.features.help.HelpThreadCreatedListener;
-import org.togetherjava.tjbot.features.help.HelpThreadMetadataPurger;
+import org.togetherjava.tjbot.features.help.*;
 import org.togetherjava.tjbot.features.jshell.JShellCommand;
 import org.togetherjava.tjbot.features.jshell.JShellEval;
 import org.togetherjava.tjbot.features.mathcommands.TeXCommand;
 import org.togetherjava.tjbot.features.mathcommands.wolframalpha.WolframAlphaCommand;
 import org.togetherjava.tjbot.features.mediaonly.MediaOnlyChannelListener;
-import org.togetherjava.tjbot.features.moderation.BanCommand;
-import org.togetherjava.tjbot.features.moderation.KickCommand;
-import org.togetherjava.tjbot.features.moderation.ModerationActionsStore;
-import org.togetherjava.tjbot.features.moderation.MuteCommand;
-import org.togetherjava.tjbot.features.moderation.NoteCommand;
-import org.togetherjava.tjbot.features.moderation.QuarantineCommand;
-import org.togetherjava.tjbot.features.moderation.RejoinModerationRoleListener;
-import org.togetherjava.tjbot.features.moderation.ReportCommand;
-import org.togetherjava.tjbot.features.moderation.UnbanCommand;
-import org.togetherjava.tjbot.features.moderation.UnmuteCommand;
-import org.togetherjava.tjbot.features.moderation.UnquarantineCommand;
-import org.togetherjava.tjbot.features.moderation.WarnCommand;
-import org.togetherjava.tjbot.features.moderation.WhoIsCommand;
+import org.togetherjava.tjbot.features.moderation.*;
 import org.togetherjava.tjbot.features.moderation.attachment.BlacklistedAttachmentListener;
 import org.togetherjava.tjbot.features.moderation.audit.AuditCommand;
 import org.togetherjava.tjbot.features.moderation.audit.ModAuditLogRoutine;
@@ -93,6 +77,7 @@ public class Features {
      * @return a collection of all features
      */
     public static Collection<Feature> createFeatures(JDA jda, Database database, Config config) {
+        FeatureBlacklistConfig blacklistConfig = config.getFeatureBlacklistConfig();
         JShellEval jshellEval = new JShellEval(config.getJshell());
 
         TagSystem tagSystem = new TagSystem(database);
@@ -100,7 +85,8 @@ public class Features {
         ModerationActionsStore actionsStore = new ModerationActionsStore(database);
         ModAuditLogWriter modAuditLogWriter = new ModAuditLogWriter(config);
         ScamHistoryStore scamHistoryStore = new ScamHistoryStore(database);
-        CodeMessageHandler codeMessageHandler = new CodeMessageHandler(jshellEval);
+        CodeMessageHandler codeMessageHandler =
+                new CodeMessageHandler(blacklistConfig.special(), jshellEval);
         ChatGptService chatGptService = new ChatGptService(config);
         HelpSystemHelper helpSystemHelper = new HelpSystemHelper(config, database, chatGptService);
 
@@ -139,6 +125,7 @@ public class Features {
         features.add(new GuildLeaveCloseThreadListener(config));
         features.add(new LeftoverBookmarksListener(bookmarksSystem));
         features.add(new HelpThreadCreatedListener(helpSystemHelper));
+        features.add(new Starboard(config, database));
 
         // Message context commands
 
@@ -172,6 +159,8 @@ public class Features {
         features.add(new BookmarksCommand(bookmarksSystem));
         features.add(new ChatGptCommand(chatGptService));
         features.add(new JShellCommand(jshellEval));
-        return features;
+
+        FeatureBlacklist<Class<?>> blacklist = blacklistConfig.normal();
+        return features.stream().filter(f -> blacklist.isEnabled(f.getClass())).toList();
     }
 }

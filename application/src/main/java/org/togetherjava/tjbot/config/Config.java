@@ -39,7 +39,10 @@ public final class Config {
     private final String openaiApiKey;
     private final String sourceCodeBaseUrl;
     private final JShellConfig jshell;
-    private final OofsAndLmaosConfig oofsAndLmaos;
+    private final StarboardConfig starboard;
+    private final HelperPruneConfig helperPruneConfig;
+    private final FeatureBlacklistConfig featureBlacklistConfig;
+
 
     @SuppressWarnings("ConstructorWithTooManyParameters")
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
@@ -77,8 +80,12 @@ public final class Config {
                     required = true) String logErrorChannelWebhook,
             @JsonProperty(value = "openaiApiKey", required = true) String openaiApiKey,
             @JsonProperty(value = "sourceCodeBaseUrl", required = true) String sourceCodeBaseUrl,
-            @JsonProperty(value = "jshell", required = true) JShellConfig jshell, 
-            @JsonProperty(value = "oofsAndLmaos", required = true) OofsAndLmaosConfig oofsAndLmaos) {
+            @JsonProperty(value = "jshell", required = true) JShellConfig jshell,
+            @JsonProperty(value = "starboard", required = true) StarboardConfig starboard,
+            @JsonProperty(value = "helperPruneConfig",
+                    required = true) HelperPruneConfig helperPruneConfig,
+            @JsonProperty(value = "featureBlacklist",
+                    required = true) FeatureBlacklistConfig featureBlacklistConfig) {
         this.token = Objects.requireNonNull(token);
         this.gistApiKey = Objects.requireNonNull(gistApiKey);
         this.databasePath = Objects.requireNonNull(databasePath);
@@ -104,7 +111,9 @@ public final class Config {
         this.openaiApiKey = Objects.requireNonNull(openaiApiKey);
         this.sourceCodeBaseUrl = Objects.requireNonNull(sourceCodeBaseUrl);
         this.jshell = Objects.requireNonNull(jshell);
-        this.oofsAndLmaos = Objects.requireNonNull(oofsAndLmaos);
+        this.starboard = Objects.requireNonNull(starboard);
+        this.helperPruneConfig = Objects.requireNonNull(helperPruneConfig);
+        this.featureBlacklistConfig = Objects.requireNonNull(featureBlacklistConfig);
     }
 
     /**
@@ -344,8 +353,35 @@ public final class Config {
      */
     public JShellConfig getJshell() {
         return jshell;
-	}
-    public OofsAndLmaosConfig getOofsAndLmaos() {
-        return oofsAndLmaos;
+    }
+
+    /**
+     * Gets the config for the Starboard. The starboard displays certain messages in a special
+     * channel {@link StarboardConfig#channelPattern()} if a user reacts with one of the recognized
+     * emojis{@link StarboardConfig#emojiNames()}
+     * 
+     * @return the config of the Starboard
+     */
+    public StarboardConfig getStarboard() {
+        return starboard;
+    }
+
+    /**
+     * Gets the config for automatic pruning of helper roles.
+     *
+     * @return the configuration
+     */
+    public HelperPruneConfig getHelperPruneConfig() {
+        return helperPruneConfig;
+    }
+
+    /**
+     * The configuration of blacklisted features.
+     * 
+     * @return configuration of blacklisted features
+     */
+    public FeatureBlacklistConfig getFeatureBlacklistConfig() {
+        return featureBlacklistConfig;
+
     }
 }
