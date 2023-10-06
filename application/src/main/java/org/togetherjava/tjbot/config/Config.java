@@ -43,7 +43,6 @@ public final class Config {
     private final HelperPruneConfig helperPruneConfig;
     private final FeatureBlacklistConfig featureBlacklistConfig;
 
-
     @SuppressWarnings("ConstructorWithTooManyParameters")
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
     private Config(@JsonProperty(value = "token", required = true) String token,
